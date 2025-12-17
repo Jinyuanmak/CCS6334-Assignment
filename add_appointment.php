@@ -216,7 +216,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             
         } catch (Exception $e) {
             error_log("Error creating appointment: " . $e->getMessage());
-            $message = "Error scheduling appointment. Please try again.";
+            error_log("SQL Error Details: " . print_r($e, true));
+            
+            // Show more detailed error in development mode
+            if (defined('SHOW_DETAILED_ERRORS') && SHOW_DETAILED_ERRORS) {
+                $message = "Error scheduling appointment: " . $e->getMessage();
+            } else {
+                $message = "Error scheduling appointment. Please try again. If the problem persists, contact support.";
+            }
             $messageType = 'error';
             
             // Log the failed appointment creation attempt

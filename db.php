@@ -167,7 +167,16 @@ class Database {
             return $stmt;
         } catch (PDOException $e) {
             error_log("Query execution failed: " . $e->getMessage());
-            throw new Exception("Database operation failed. Please try again later.");
+            error_log("SQL: " . $sql);
+            error_log("Params: " . print_r($params, true));
+            error_log("PDO Error Info: " . print_r($e->errorInfo, true));
+            
+            // In development mode, show more details
+            if (defined('SHOW_DETAILED_ERRORS') && SHOW_DETAILED_ERRORS) {
+                throw new Exception("Database operation failed: " . $e->getMessage());
+            } else {
+                throw new Exception("Database operation failed. Please try again later.");
+            }
         }
     }
     

@@ -35,6 +35,9 @@ ini_set('session.cookie_secure', 0); // Set to 1 for HTTPS in production
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
+// Show detailed error messages (set to false in production)
+define('SHOW_DETAILED_ERRORS', true);
+
 // Timezone setting
 date_default_timezone_set('Asia/Kuala_Lumpur');
 ?>

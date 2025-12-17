@@ -117,8 +117,8 @@ function initializeReasonTinyMCE() {
             }
         `,
         setup: function (editor) {
-            // Force sync to textarea on change so PHP $_POST works
-            editor.on('change', function () {
+            // Force sync to textarea on multiple events to ensure content is saved
+            editor.on('change keyup blur', function () {
                 editor.save();
             });
             
@@ -291,6 +291,11 @@ function setupAppointmentFormValidation() {
     const form = document.querySelector('form');
     if (form) {
         form.addEventListener('submit', function(e) {
+            // CRITICAL FIX: Force TinyMCE to save content to textarea before validation
+            if (typeof tinymce !== 'undefined' && tinymce.get('reason')) {
+                tinymce.get('reason').save();
+            }
+            
             const patientId = document.getElementById('patient_id') ? document.getElementById('patient_id').value : 'locked';
             const appointmentDate = document.getElementById('appointment_date').value;
             const appointmentTime = document.getElementById('appointment_time').value;

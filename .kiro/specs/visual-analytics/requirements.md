@@ -11,7 +11,7 @@ The Visual Analytics feature enhances the Private Clinic Patient Record System's
 - **Appointment Data**: Records from the appointments table including dates, times, and patient information
 - **Chart.js Library**: The JavaScript charting library used to render interactive visualizations
 - **Weekly Workload Chart**: A chart displaying appointment counts for the next 7 days
-- **Monthly Workload Chart**: A chart displaying appointment counts for the next 30 days
+- **Monthly Workload Chart**: A chart displaying appointment counts by calendar months (Jan, Feb, Mar, Apr, May, Jun, July, Aug, Sep, Oct, Nov, Dec)
 - **View Toggle**: User interface control that allows switching between weekly and monthly data views
 - **Line Chart**: A chart type that displays data points connected by lines to show trends over time
 
@@ -25,7 +25,7 @@ The Visual Analytics feature enhances the Private Clinic Patient Record System's
 
 1. WHEN the admin dashboard loads THEN the Visual Analytics System SHALL display a bar chart showing appointment counts for the next 7 days
 2. WHEN appointment data is retrieved THEN the Visual Analytics System SHALL query appointments between today and 7 days from today
-3. WHEN displaying the chart THEN the Visual Analytics System SHALL show dates as abbreviated day names (Mon, Tue, Wed, etc.)
+3. WHEN displaying the chart THEN the Visual Analytics System SHALL show dates as abbreviated day names in the sequence (Mon, Tue, Wed, Thu, Fri, Sat, Sun)
 4. WHEN rendering the chart THEN the Visual Analytics System SHALL use a soft blue color (#3b82f6) for the bars
 5. WHEN the chart displays THEN the Visual Analytics System SHALL include rounded corners on the bars for premium appearance
 
@@ -75,7 +75,7 @@ The Visual Analytics feature enhances the Private Clinic Patient Record System's
 2. WHEN displaying the line chart THEN the Visual Analytics System SHALL use a soft blue color (#3b82f6) for the line with appropriate thickness
 3. WHEN rendering data points THEN the Visual Analytics System SHALL display circular markers at each data point
 4. WHEN the line chart displays THEN the Visual Analytics System SHALL include smooth curves between data points for better visual flow
-5. WHEN users hover over data points THEN the Visual Analytics System SHALL show tooltips with exact appointment counts
+5. WHEN users hover over data points THEN the Visual Analytics System SHALL show tooltips with exact appointment counts and the corresponding date or month total
 
 ### Requirement 6
 
@@ -85,7 +85,8 @@ The Visual Analytics feature enhances the Private Clinic Patient Record System's
 
 1. WHEN the chart card displays THEN the Visual Analytics System SHALL provide view toggle buttons for weekly and monthly options
 2. WHEN a user clicks the weekly view button THEN the Visual Analytics System SHALL display appointment data for the next 7 days
-3. WHEN a user clicks the monthly view button THEN the Visual Analytics System SHALL display appointment data for the next 30 days
+3. WHEN a user clicks the monthly view button THEN the Visual Analytics System SHALL display appointment data grouped by calendar months (Jan, Feb, Mar, Apr, May, Jun, July, Aug, Sep, Oct, Nov, Dec)
 4. WHEN switching between views THEN the Visual Analytics System SHALL update the chart smoothly without page reload
 5. WHEN a view is selected THEN the Visual Analytics System SHALL highlight the active view button to indicate current selection
-6. WHEN displaying monthly view THEN the Visual Analytics System SHALL show dates in a readable format appropriate for 30-day span
+6. WHEN displaying monthly view THEN the Visual Analytics System SHALL show calendar months as abbreviated month names (Jan, Feb, Mar, Apr, May, Jun, July, Aug, Sep, Oct, Nov, Dec) with total appointment counts for each month
+7. WHEN displaying any chart view THEN the Visual Analytics System SHALL show the total appointment count for each time period (daily totals for weekly view, monthly totals for monthly view)

@@ -76,7 +76,10 @@ class ComprehensivePropertyTestRunner {
             'testDateLabelAccuracyProperty',
             'testChartRenderingIntegrityProperty',
             'testErrorHandlingGracefulDegradationProperty',
-            'testJSONDataFormatConsistencyProperty'
+            'testJSONDataFormatConsistencyProperty',
+            'testLineChartConfigurationProperty',
+            'testMonthlyDateFormatProperty',
+            'testChartUpdateWithoutReloadProperty'
         ]);
         
         $endTime = microtime(true);

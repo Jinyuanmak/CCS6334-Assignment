@@ -2,7 +2,7 @@
 
 ## Overview
 
-The Visual Analytics feature enhances the Private Clinic Patient Record System's Admin Dashboard by adding interactive data visualizations. The primary component is a line chart displaying appointment counts with the ability to toggle between weekly (7 days) and monthly (30 days) views, providing administrators with immediate visual insights into workload distribution, scheduling patterns, and trends over time.
+The Visual Analytics feature enhances the Private Clinic Patient Record System's Admin Dashboard by adding interactive data visualizations. The primary component is a line chart displaying appointment counts with the ability to toggle between weekly (7 days showing Mon, Tue, Wed, Thu, Fri, Sat, Sun) and monthly (12 months showing Jan, Feb, Mar, Apr, May, Jun, July, Aug, Sep, Oct, Nov, Dec) views, providing administrators with immediate visual insights into workload distribution, scheduling patterns, and trends over time.
 
 This feature integrates seamlessly with the existing PHP-based dashboard, leveraging Chart.js for client-side rendering and maintaining the current Bootstrap-based styling framework. The implementation follows the existing architecture patterns while adding minimal overhead to page load times. The line chart visualization with view toggles provides a more sophisticated and flexible analytics experience.
 
@@ -31,27 +31,39 @@ The Visual Analytics feature follows a three-tier architecture:
 **Purpose**: Handles data retrieval and processing for visual analytics
 
 **Key Methods**:
-- `getAppointmentCounts($days)`: Returns array of appointment counts for specified number of days (7 or 30)
-- `generateDateLabels($days)`: Creates date labels appropriate for the time period
-- `formatDataForChart($days)`: Converts raw data to Chart.js compatible format
+- `getAppointmentCounts($viewType)`: Returns array of appointment counts for specified view type ('weekly' for 7 days or 'monthly' for 12 months)
+- `generateDateLabels($viewType)`: Creates date labels appropriate for the time period (Mon-Sun for weekly, Jan-Dec for monthly)
+- `formatDataForChart($viewType)`: Converts raw data to Chart.js compatible format
 
-**Database Query (Parameterized)**:
+**Database Queries**:
+
+Weekly View:
 ```sql
 SELECT DATE(start_time) as app_date, COUNT(*) as count 
 FROM appointments 
-WHERE start_time BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL ? DAY) 
+WHERE start_time BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL 7 DAY) 
 GROUP BY DATE(start_time)
 ORDER BY app_date ASC
 ```
 
+Monthly View:
+```sql
+SELECT YEAR(start_time) as app_year, MONTH(start_time) as app_month, COUNT(*) as count 
+FROM appointments 
+WHERE start_time >= CURDATE()
+GROUP BY YEAR(start_time), MONTH(start_time)
+ORDER BY app_year ASC, app_month ASC
+LIMIT 12
+```
+
 #### Data Processing Logic
-- Generates complete date range (7 or 30 days) regardless of appointment availability
-- Fills missing dates with zero counts to ensure consistent chart display
+- Generates complete date range (7 days or 12 months) regardless of appointment availability
+- Fills missing periods with zero counts to ensure consistent chart display
 - Converts dates to appropriate labels based on view:
-  - Weekly view: Abbreviated day names (Mon, Tue, Wed, etc.)
-  - Monthly view: Date format (Dec 18, Dec 19, etc.)
-- Outputs JSON-encoded arrays for JavaScript consumption
-- Supports dynamic switching between time periods
+  - Weekly view: Abbreviated day names in sequence (Mon, Tue, Wed, Thu, Fri, Sat, Sun)
+  - Monthly view: Abbreviated month names (Jan, Feb, Mar, Apr, May, Jun, July, Aug, Sep, Oct, Nov, Dec)
+- Outputs JSON-encoded arrays for JavaScript consumption with total counts for each period
+- Supports dynamic switching between weekly and monthly time periods
 
 ### Frontend Components
 
@@ -109,10 +121,16 @@ $appointmentData = [
     // ... additional dates
 ];
 
-// Processed data for Chart.js
-$chartData = [
-    'labels' => ['Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun', 'Mon'],
+// Processed data for Chart.js (Weekly View)
+$weeklyChartData = [
+    'labels' => ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
     'counts' => [5, 3, 0, 8, 2, 1, 4]
+];
+
+// Processed data for Chart.js (Monthly View)
+$monthlyChartData = [
+    'labels' => ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'July', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+    'counts' => [45, 38, 52, 41, 33, 29, 35, 42, 48, 51, 39, 44]
 ];
 ```
 
@@ -202,7 +220,7 @@ const chartConfig = {
 **Validates: Requirements 6.2**
 
 ### Property 8: Monthly View Date Range
-*For any* current date, when the monthly view is selected, the Visual Analytics System should return exactly 30 consecutive days of appointment data starting from today
+*For any* current date, when the monthly view is selected, the Visual Analytics System should return exactly 12 months of appointment data grouped by calendar months (Jan, Feb, Mar, Apr, May, Jun, July, Aug, Sep, Oct, Nov, Dec)
 **Validates: Requirements 6.3**
 
 ### Property 9: View Toggle State Consistency
@@ -214,8 +232,12 @@ const chartConfig = {
 **Validates: Requirements 6.4**
 
 ### Property 11: Monthly Date Format Appropriateness
-*For any* date in the monthly view, the label format should include both month and day information (e.g., "Dec 18") to distinguish dates across the 30-day span
+*For any* month in the monthly view, the label format should use abbreviated month names (Jan, Feb, Mar, Apr, May, Jun, July, Aug, Sep, Oct, Nov, Dec) with total appointment counts for each month
 **Validates: Requirements 6.6**
+
+### Property 12: Total Count Display
+*For any* chart view (weekly or monthly), each data point should display the total appointment count for that time period (daily totals for weekly view, monthly totals for monthly view)
+**Validates: Requirements 6.7**
 
 ## Error Handling
 

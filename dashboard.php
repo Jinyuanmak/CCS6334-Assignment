@@ -128,9 +128,9 @@ try {
     $appointmentHistory = [];
 }
 
-// Get appointment analytics data for Weekly Workload chart
+// Get appointment analytics data for Weekly Workload chart (default to weekly view)
 try {
-    $analyticsData = AppointmentAnalyticsService::getAnalyticsData();
+    $analyticsData = AppointmentAnalyticsService::getAnalyticsData('weekly');
     $chartLabels = $analyticsData['json_labels'];
     $chartCounts = $analyticsData['json_counts'];
     $analyticsError = isset($analyticsData['is_fallback']) && $analyticsData['is_fallback'];
@@ -297,16 +297,28 @@ try {
             <div class="col-lg-8">
                 <div class="card shadow h-100">
                     <div class="card-header bg-white py-3">
-                        <h5 class="m-0 font-weight-bold text-primary">
-                            <i class="fas fa-chart-bar me-2"></i>
-                            Weekly Workload
-                            <?php if ($analyticsError): ?>
-                                <small class="text-muted ms-2">
-                                    <i class="fas fa-exclamation-triangle text-warning"></i>
-                                    Data temporarily unavailable
-                                </small>
-                            <?php endif; ?>
-                        </h5>
+                        <div class="d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center gap-2">
+                            <h5 class="m-0 font-weight-bold text-primary flex-grow-1">
+                                <i class="fas fa-chart-line me-2"></i>
+                                Appointment Trends
+                                <?php if ($analyticsError): ?>
+                                    <small class="text-muted ms-2 d-block d-sm-inline">
+                                        <i class="fas fa-exclamation-triangle text-warning"></i>
+                                        Data temporarily unavailable
+                                    </small>
+                                <?php endif; ?>
+                            </h5>
+                            <div class="btn-group btn-group-sm flex-shrink-0" role="group" aria-label="Chart view toggle">
+                                <button type="button" class="btn btn-outline-primary active" id="weeklyViewBtn" aria-pressed="true">
+                                    <i class="fas fa-calendar-week me-1 d-none d-md-inline"></i>
+                                    Weekly
+                                </button>
+                                <button type="button" class="btn btn-outline-primary" id="monthlyViewBtn" aria-pressed="false">
+                                    <i class="fas fa-calendar-alt me-1 d-none d-md-inline"></i>
+                                    Monthly
+                                </button>
+                            </div>
+                        </div>
                     </div>
                     <div class="card-body">
                         <?php if ($analyticsError): ?>
@@ -317,14 +329,14 @@ try {
                             </div>
                         <?php endif; ?>
                         <div class="chart-container" role="img" aria-labelledby="chart-title" aria-describedby="chart-description">
-                            <div id="chart-title" class="visually-hidden">Weekly Workload Bar Chart</div>
+                            <div id="chart-title" class="visually-hidden">Weekly Workload Line Chart</div>
                             <div id="chart-description" class="visually-hidden">
-                                A bar chart showing appointment counts for the next 7 days. 
+                                A line chart showing appointment trends for the next 7 days with smooth curves. 
                                 Use Tab to navigate to the data table below for detailed information.
                             </div>
                             <canvas id="workloadChart" 
                                     role="img" 
-                                    aria-label="Weekly appointment workload chart showing appointment counts for the next 7 days"
+                                    aria-label="Weekly appointment workload line chart showing appointment trends for the next 7 days"
                                     tabindex="0">
                                 <p>Your browser does not support the canvas element. Please see the data table below for appointment information.</p>
                             </canvas>
@@ -530,19 +542,24 @@ try {
                 throw new Error('Labels and counts arrays must have equal length');
             }
             
-            // Chart.js configuration object with bar chart type and premium styling
+            // Chart.js configuration object with line chart type and premium styling
             const chartConfig = {
-                type: 'bar',
+                type: 'line',
                 data: {
                     labels: jsonLabels, // Use validated JSON data
                     datasets: [{
                         label: 'Appointments',
                         data: jsonCounts, // Use validated JSON data
-                        backgroundColor: '#3b82f6', // Soft blue color as specified
-                        borderColor: '#2563eb',
-                        borderWidth: 1,
-                        borderRadius: 4, // Rounded corners for premium appearance
-                        borderSkipped: false
+                        borderColor: '#3b82f6', // Soft blue color for line
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)', // Semi-transparent background fill
+                        borderWidth: 2,
+                        fill: true, // Add fill property with semi-transparent background
+                        tension: 0.4, // Smooth curves between data points
+                        pointRadius: 4, // Circular markers radius
+                        pointBackgroundColor: '#3b82f6', // Soft blue color for points
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2,
+                        pointHoverRadius: 6
                     }]
                 },
                 options: {
@@ -593,10 +610,27 @@ try {
                         intersect: false,
                         mode: 'index'
                     },
-                    // Animation configuration for smooth rendering
+                    // Animation configuration for smooth rendering and view transitions
                     animation: {
                         duration: 750,
                         easing: 'easeInOutQuart'
+                    },
+                    // Enhanced animation for data updates (view switching)
+                    animations: {
+                        tension: {
+                            duration: 750,
+                            easing: 'easeInOutQuart',
+                            from: 0.4,
+                            to: 0.4
+                        },
+                        x: {
+                            duration: 750,
+                            easing: 'easeInOutQuart'
+                        },
+                        y: {
+                            duration: 750,
+                            easing: 'easeInOutQuart'
+                        }
                     }
                 }
             };
@@ -953,14 +987,179 @@ try {
              * Highlight data point visually (for users who can see)
              */
             function highlightDataPoint(chart, index) {
-                // Reset all bar colors
+                // Reset all point colors
                 const dataset = chart.data.datasets[0];
-                dataset.backgroundColor = Array(dataset.data.length).fill('#3b82f6');
+                dataset.pointBackgroundColor = Array(dataset.data.length).fill('#3b82f6');
+                dataset.pointRadius = Array(dataset.data.length).fill(4);
                 
-                // Highlight current bar
-                dataset.backgroundColor[index] = '#1d4ed8'; // Darker blue for highlight
+                // Highlight current point
+                dataset.pointBackgroundColor[index] = '#1d4ed8'; // Darker blue for highlight
+                dataset.pointRadius[index] = 6; // Larger radius for highlight
                 
                 chart.update('none'); // Update without animation for better accessibility
+            }
+            
+            /**
+             * ViewToggleController - Manages switching between weekly and monthly views
+             */
+            class ViewToggleController {
+                constructor(chartInstance) {
+                    this.chart = chartInstance;
+                    this.currentView = 'weekly'; // Default to weekly view
+                    this.isLoading = false;
+                    
+                    this.initializeEventListeners();
+                    this.highlightActiveButton('weekly');
+                }
+                
+                /**
+                 * Initialize event listeners for toggle buttons
+                 */
+                initializeEventListeners() {
+                    const weeklyBtn = document.getElementById('weeklyViewBtn');
+                    const monthlyBtn = document.getElementById('monthlyViewBtn');
+                    
+                    if (weeklyBtn) {
+                        weeklyBtn.addEventListener('click', () => this.switchView('weekly'));
+                    }
+                    
+                    if (monthlyBtn) {
+                        monthlyBtn.addEventListener('click', () => this.switchView('monthly'));
+                    }
+                }
+                
+                /**
+                 * Switch between weekly and monthly views
+                 * @param {string} viewType - 'weekly' or 'monthly'
+                 */
+                async switchView(viewType) {
+                    if (this.isLoading || this.currentView === viewType) {
+                        return; // Prevent multiple requests or switching to same view
+                    }
+                    
+                    this.isLoading = true;
+                    this.highlightActiveButton(viewType);
+                    
+                    try {
+                        const data = await this.fetchAppointmentData(viewType);
+                        
+                        if (data.success) {
+                            this.updateChart(data.labels, data.counts);
+                            this.currentView = viewType;
+                            
+                            // Update accessible data table
+                            populateAccessibleDataTable(data.labels, data.counts);
+                        } else {
+                            console.error('Failed to fetch appointment data:', data.error);
+                            this.showErrorMessage('Unable to load ' + viewType + ' view data');
+                        }
+                    } catch (error) {
+                        console.error('Error switching view:', error);
+                        this.showErrorMessage('Network error while loading ' + viewType + ' view');
+                    } finally {
+                        this.isLoading = false;
+                    }
+                }
+                
+                /**
+                 * Fetch appointment data from backend
+                 * @param {string} viewType - View type ('weekly' or 'monthly')
+                 * @returns {Promise<Object>} Response data
+                 */
+                async fetchAppointmentData(viewType) {
+                    const response = await fetch(`data.php?mode=chart&view=${viewType}`, {
+                        method: 'GET',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    });
+                    
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    
+                    return await response.json();
+                }
+                
+                /**
+                 * Update chart with new data
+                 * @param {Array} labels - New labels array
+                 * @param {Array} data - New data array
+                 */
+                updateChart(labels, data) {
+                    if (!this.chart || !labels || !data) {
+                        console.error('Invalid chart or data for update');
+                        return;
+                    }
+                    
+                    // Update chart data
+                    this.chart.data.labels = labels;
+                    this.chart.data.datasets[0].data = data;
+                    
+                    // Animate the update smoothly with proper duration and easing
+                    this.chart.update({
+                        duration: 750,
+                        easing: 'easeInOutQuart'
+                    });
+                }
+                
+                /**
+                 * Highlight the active button and remove highlight from inactive button
+                 * @param {string} viewType - 'weekly' or 'monthly'
+                 */
+                highlightActiveButton(viewType) {
+                    const weeklyBtn = document.getElementById('weeklyViewBtn');
+                    const monthlyBtn = document.getElementById('monthlyViewBtn');
+                    
+                    if (weeklyBtn && monthlyBtn) {
+                        // Remove active class from both buttons and update aria-pressed
+                        weeklyBtn.classList.remove('active');
+                        weeklyBtn.setAttribute('aria-pressed', 'false');
+                        monthlyBtn.classList.remove('active');
+                        monthlyBtn.setAttribute('aria-pressed', 'false');
+                        
+                        // Add active class to selected button and update aria-pressed
+                        if (viewType === 'weekly') {
+                            weeklyBtn.classList.add('active');
+                            weeklyBtn.setAttribute('aria-pressed', 'true');
+                        } else {
+                            monthlyBtn.classList.add('active');
+                            monthlyBtn.setAttribute('aria-pressed', 'true');
+                        }
+                    }
+                }
+                
+                /**
+                 * Show error message to user
+                 * @param {string} message - Error message to display
+                 */
+                showErrorMessage(message) {
+                    // Create a temporary alert
+                    const alertDiv = document.createElement('div');
+                    alertDiv.className = 'alert alert-warning alert-dismissible fade show mt-2';
+                    alertDiv.innerHTML = `
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        ${message}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    `;
+                    
+                    // Insert after the chart card header
+                    const cardBody = document.querySelector('.chart-container').parentElement;
+                    cardBody.insertBefore(alertDiv, cardBody.firstChild);
+                    
+                    // Auto-dismiss after 5 seconds
+                    setTimeout(() => {
+                        if (alertDiv.parentNode) {
+                            alertDiv.remove();
+                        }
+                    }, 5000);
+                }
+            }
+            
+            // Initialize ViewToggleController after chart is created
+            if (window.workloadChart) {
+                window.viewToggleController = new ViewToggleController(window.workloadChart);
             }
 
         });

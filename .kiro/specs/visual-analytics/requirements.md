@@ -10,7 +10,10 @@ The Visual Analytics feature enhances the Private Clinic Patient Record System's
 - **Admin Dashboard**: The main administrative interface (dashboard.php) where visual analytics are displayed
 - **Appointment Data**: Records from the appointments table including dates, times, and patient information
 - **Chart.js Library**: The JavaScript charting library used to render interactive visualizations
-- **Weekly Workload Chart**: A bar chart displaying appointment counts for the next 7 days
+- **Weekly Workload Chart**: A chart displaying appointment counts for the next 7 days
+- **Monthly Workload Chart**: A chart displaying appointment counts for the next 30 days
+- **View Toggle**: User interface control that allows switching between weekly and monthly data views
+- **Line Chart**: A chart type that displays data points connected by lines to show trends over time
 
 ## Requirements
 
@@ -61,3 +64,28 @@ The Visual Analytics feature enhances the Private Clinic Patient Record System's
 3. WHEN displaying the chart THEN the Visual Analytics System SHALL ensure proper contrast and accessibility standards
 4. WHEN users interact with the chart THEN the Visual Analytics System SHALL provide keyboard navigation support
 5. WHEN the chart loads THEN the Visual Analytics System SHALL include appropriate ARIA labels for screen readers
+
+### Requirement 5
+
+**User Story:** As an administrator, I want to view appointment trends as a line chart, so that I can better visualize patterns and trends over time.
+
+#### Acceptance Criteria
+
+1. WHEN the chart renders THEN the Visual Analytics System SHALL display appointment data as a line chart instead of a bar chart
+2. WHEN displaying the line chart THEN the Visual Analytics System SHALL use a soft blue color (#3b82f6) for the line with appropriate thickness
+3. WHEN rendering data points THEN the Visual Analytics System SHALL display circular markers at each data point
+4. WHEN the line chart displays THEN the Visual Analytics System SHALL include smooth curves between data points for better visual flow
+5. WHEN users hover over data points THEN the Visual Analytics System SHALL show tooltips with exact appointment counts
+
+### Requirement 6
+
+**User Story:** As an administrator, I want to toggle between weekly and monthly views, so that I can analyze appointment patterns over different time periods.
+
+#### Acceptance Criteria
+
+1. WHEN the chart card displays THEN the Visual Analytics System SHALL provide view toggle buttons for weekly and monthly options
+2. WHEN a user clicks the weekly view button THEN the Visual Analytics System SHALL display appointment data for the next 7 days
+3. WHEN a user clicks the monthly view button THEN the Visual Analytics System SHALL display appointment data for the next 30 days
+4. WHEN switching between views THEN the Visual Analytics System SHALL update the chart smoothly without page reload
+5. WHEN a view is selected THEN the Visual Analytics System SHALL highlight the active view button to indicate current selection
+6. WHEN displaying monthly view THEN the Visual Analytics System SHALL show dates in a readable format appropriate for 30-day span

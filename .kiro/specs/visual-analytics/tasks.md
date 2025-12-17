@@ -182,3 +182,105 @@
 
 
   - Ensure all tests pass, ask the user if questions arise.
+
+- [ ] 9. Convert bar chart to line chart with smooth curves
+  - [ ] 9.1 Update Chart.js configuration to use line chart type
+    - Change chart type from 'bar' to 'line' in configuration
+    - Add tension property (0.4) for smooth curves between data points
+    - Configure point styling with circular markers (radius: 4)
+    - Update colors to use soft blue (#3b82f6) for line and points
+    - Add fill property with semi-transparent background
+    - _Requirements: 5.1, 5.2, 5.3, 5.4_
+
+  - [ ] 9.2 Write property test for line chart configuration
+    - **Property 12: Line Chart Configuration**
+    - **Validates: Requirements 5.1, 5.2, 5.3, 5.4**
+
+  - [ ] 9.3 Update tooltip configuration for line chart
+    - Ensure tooltips display correctly on hover over data points
+    - Verify tooltip formatting shows exact appointment counts
+    - _Requirements: 5.5_
+
+- [ ] 10. Implement view toggle functionality
+  - [ ] 10.1 Add toggle buttons to chart card header
+    - Create button group with Weekly and Monthly buttons
+    - Position buttons beside chart title in card header
+    - Add appropriate IDs (weeklyViewBtn, monthlyViewBtn)
+    - Style buttons using Bootstrap btn-outline-primary
+    - _Requirements: 6.1_
+
+  - [ ] 10.2 Implement backend endpoint for dynamic data fetching
+    - Create PHP function to accept days parameter (7 or 30)
+    - Modify SQL query to use parameterized day count
+    - Return JSON response with labels and counts for requested period
+    - Handle both weekly and monthly date label formatting
+    - _Requirements: 6.2, 6.3, 6.6_
+
+  - [ ] 10.3 Write property test for weekly view date range
+    - **Property 7: Weekly View Date Range**
+    - **Validates: Requirements 6.2**
+
+  - [ ] 10.4 Write property test for monthly view date range
+    - **Property 8: Monthly View Date Range**
+    - **Validates: Requirements 6.3**
+
+  - [ ] 10.5 Create ViewToggleController JavaScript component
+    - Implement switchView(viewType) function to handle view changes
+    - Create updateChart(labels, data) function to refresh chart data
+    - Add highlightActiveButton(viewType) for button state management
+    - Implement AJAX request to fetch data based on selected view
+    - _Requirements: 6.2, 6.3, 6.4, 6.5_
+
+  - [ ] 10.6 Write property test for toggle button state consistency
+    - **Property 9: View Toggle State Consistency**
+    - **Validates: Requirements 6.5**
+
+  - [ ] 10.7 Write property test for chart update without reload
+    - **Property 10: Chart Update Without Reload**
+    - **Validates: Requirements 6.4**
+
+  - [ ] 10.8 Implement date label formatting for monthly view
+    - Create function to format dates as "Dec 18" style for 30-day view
+    - Ensure weekly view continues using abbreviated day names
+    - Handle month transitions correctly in monthly view
+    - _Requirements: 6.6_
+
+  - [ ] 10.9 Write property test for monthly date format
+    - **Property 11: Monthly Date Format Appropriateness**
+    - **Validates: Requirements 6.6**
+
+- [ ] 11. Update chart styling and animations
+  - [ ] 11.1 Configure smooth transitions for view switching
+    - Add animation configuration to Chart.js options
+    - Set appropriate duration (750ms) and easing function
+    - Ensure chart updates smoothly when data changes
+    - _Requirements: 6.4_
+
+  - [ ] 11.2 Update card header layout for toggle buttons
+    - Use flexbox to position title and buttons
+    - Ensure responsive layout on mobile devices
+    - Maintain consistent spacing and alignment
+    - _Requirements: 6.1_
+
+- [ ] 12. Integration testing and validation
+  - [ ] 12.1 Test view toggle functionality end-to-end
+    - Verify weekly view displays 7 days correctly
+    - Verify monthly view displays 30 days correctly
+    - Test switching between views updates chart properly
+    - Ensure active button state changes correctly
+    - _Requirements: 6.2, 6.3, 6.4, 6.5_
+
+  - [ ] 12.2 Test line chart rendering with real data
+    - Verify line chart displays correctly with various data patterns
+    - Test with zero appointments, sparse data, and full data
+    - Ensure smooth curves and data points render properly
+    - _Requirements: 5.1, 5.3, 5.4_
+
+  - [ ] 12.3 Write unit tests for date formatting functions
+    - Test weekly date label generation (Mon, Tue, Wed, etc.)
+    - Test monthly date label generation (Dec 18, Dec 19, etc.)
+    - Test edge cases like month transitions
+    - _Requirements: 6.6_
+
+- [ ] 13. Final checkpoint - Ensure all tests pass
+  - Ensure all tests pass, ask the user if questions arise.

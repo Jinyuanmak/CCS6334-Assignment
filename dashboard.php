@@ -291,10 +291,11 @@ try {
             </div>
         </div>
 
-        <!-- Weekly Workload Analytics Section -->
+        <!-- Analytics and System Maintenance Section - Side by Side -->
         <div class="row mb-4">
-            <div class="col-12">
-                <div class="card shadow">
+            <!-- Weekly Workload Analytics - Left Side -->
+            <div class="col-lg-8">
+                <div class="card shadow h-100">
                     <div class="card-header bg-white py-3">
                         <h5 class="m-0 font-weight-bold text-primary">
                             <i class="fas fa-chart-bar me-2"></i>
@@ -346,286 +347,50 @@ try {
                     </div>
                 </div>
             </div>
-        </div>
 
-        <!-- System Maintenance Section -->
-        <div class="row mb-4">
-            <div class="col-12">
-                <div class="card shadow">
+            <!-- System Maintenance - Right Side -->
+            <div class="col-lg-4">
+                <div class="card shadow h-100">
                     <div class="card-header bg-white py-3">
                         <h5 class="m-0 font-weight-bold text-warning">
                             <i class="fas fa-tools me-2"></i>
-                            System Maintenance & Disaster Recovery
+                            System Maintenance
                         </h5>
                     </div>
-                    <div class="card-body">
-                        <div class="row">
-                            <div class="col-md-8">
-                                <h6 class="text-dark mb-2">
-                                    <i class="fas fa-database me-2 text-primary"></i>
-                                    Database Backup
-                                </h6>
-                                <p class="text-muted mb-3">
-                                    Create a complete backup of all patient records, appointments, and system data for disaster recovery purposes. 
-                                    The backup includes encrypted patient data and can be used to restore the system in case of data loss.
-                                </p>
-                                <div class="d-flex align-items-center">
-                                    <small class="text-muted me-3">
-                                        <i class="fas fa-shield-alt me-1"></i>
-                                        Admin Only Access
-                                    </small>
-                                    <small class="text-muted me-3">
-                                        <i class="fas fa-lock me-1"></i>
-                                        Encrypted Data Included
-                                    </small>
-                                    <small class="text-muted">
-                                        <i class="fas fa-clock me-1"></i>
-                                        Timestamped Files
-                                    </small>
-                                </div>
-                            </div>
-                            <div class="col-md-4 text-end">
-                                <div class="d-grid">
-                                    <button type="button" class="btn btn-warning btn-lg" id="downloadBackupBtn">
-                                        <i class="fas fa-download me-2"></i>
-                                        Download Database Backup (.SQL)
-                                    </button>
-                                </div>
-                                <small class="text-muted mt-2 d-block">
-                                    <i class="fas fa-info-circle me-1"></i>
-                                    File will be automatically deleted from server after download
-                                </small>
-                            </div>
+                    <div class="card-body d-flex flex-column">
+                        <h6 class="text-dark mb-2">
+                            <i class="fas fa-database me-2 text-primary"></i>
+                            Database Backup
+                        </h6>
+                        <p class="text-muted mb-3">
+                            Create a complete backup of all patient records, appointments, and system data for disaster recovery.
+                        </p>
+                        <div class="mb-3">
+                            <small class="text-muted d-block mb-1">
+                                <i class="fas fa-shield-alt me-1"></i>
+                                Admin Only Access
+                            </small>
+                            <small class="text-muted d-block mb-1">
+                                <i class="fas fa-lock me-1"></i>
+                                Encrypted Data Included
+                            </small>
+                            <small class="text-muted d-block">
+                                <i class="fas fa-clock me-1"></i>
+                                Timestamped Files
+                            </small>
                         </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Patient Records Section -->
-        <div class="row">
-            <div class="col-12">
-                <div class="card shadow">
-                    <div class="card-header bg-white py-3">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <h5 class="m-0 font-weight-bold text-primary">
-                                <i class="bi bi-people-fill me-2"></i>
-                                Patient Records
-                                <?php if (!empty($searchTerm)): ?>
-                                    <small class="text-muted">- Search results for "<?php echo htmlspecialchars($searchTerm); ?>"</small>
-                                <?php endif; ?>
-                            </h5>
-                            <span class="badge bg-primary"><?php echo $totalPatientsCount; ?> total patients</span>
+                        <div class="mt-auto">
+                            <div class="d-grid">
+                                <button type="button" class="btn btn-warning btn-lg" id="downloadBackupBtn">
+                                    <i class="fas fa-download me-2"></i>
+                                    Download Backup
+                                </button>
+                            </div>
+                            <small class="text-muted mt-2 d-block text-center">
+                                <i class="fas fa-info-circle me-1"></i>
+                                Auto-deleted after download
+                            </small>
                         </div>
-                    </div>
-                    <div class="card-body">
-                        <?php if (empty($patients)): ?>
-                            <div class="text-center py-5">
-                                <i class="bi bi-person-x text-muted" style="font-size: 4rem;"></i>
-                                <h4 class="text-muted mt-3">
-                                    <?php if (!empty($searchTerm)): ?>
-                                        No patients found matching "<?php echo htmlspecialchars($searchTerm); ?>"
-                                    <?php else: ?>
-                                        No patient records found
-                                    <?php endif; ?>
-                                </h4>
-                                <p class="text-muted">
-                                    <?php if (!empty($searchTerm)): ?>
-                                        Try a different search term or <a href="dashboard.php">view all patients</a>
-                                    <?php else: ?>
-                                        <a href="add_patient.php" class="btn btn-primary">Add your first patient</a>
-                                    <?php endif; ?>
-                                </p>
-                            </div>
-                        <?php else: ?>
-                            <div class="table-responsive">
-                                <table class="table table-hover table-striped" id="patientsTable">
-                                    <thead class="table-primary">
-                                        <tr>
-                                            <th><i class="bi bi-person me-1"></i>Name</th>
-                                            <th><i class="bi bi-card-text me-1"></i>IC Number</th>
-                                            <th><i class="bi bi-clipboard-pulse me-1"></i>Diagnosis</th>
-                                            <th><i class="bi bi-telephone me-1"></i>Phone</th>
-                                            <th><i class="bi bi-calendar me-1"></i>Date Added</th>
-                                            <th><i class="bi bi-gear me-1"></i>Actions</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="patientsTableBody">
-                                        <?php foreach ($patients as $patient): ?>
-                                            <tr>
-                                                <td class="fw-semibold">
-                                                    <a href="view_patient.php?id=<?php echo $patient['id']; ?>" 
-                                                       class="text-decoration-none text-primary fw-bold"
-                                                       title="View Patient Details">
-                                                        <?php echo htmlspecialchars($patient['name']); ?>
-                                                    </a>
-                                                </td>
-                                                <td>
-                                                    <code>
-                                                        <?php 
-                                                        // Mask IC number - show first 10 characters, mask last 4
-                                                        $icNumber = $patient['ic_number'];
-                                                        if (strlen($icNumber) >= 4) {
-                                                            echo htmlspecialchars(substr($icNumber, 0, -4) . 'XXXX');
-                                                        } else {
-                                                            echo htmlspecialchars($icNumber);
-                                                        }
-                                                        ?>
-                                                    </code>
-                                                </td>
-                                                <td style="max-width: 200px;">
-                                                    <?php 
-                                                    $diagnosis = $patient['diagnosis'];
-                                                    if ($diagnosis === null || $diagnosis === '') {
-                                                        echo '<em class="text-muted">Unable to decrypt diagnosis</em>';
-                                                    } else {
-                                                        $cleanDiagnosis = strip_tags(html_entity_decode($diagnosis));
-                                                        if (strlen($cleanDiagnosis) > 50) {
-                                                            $truncated = substr($cleanDiagnosis, 0, 50) . '...';
-                                                        } else {
-                                                            $truncated = $cleanDiagnosis;
-                                                        }
-                                                        echo '<span class="diagnosis-text" title="' . htmlspecialchars($cleanDiagnosis) . '" style="cursor: default; text-decoration: none; color: inherit;">' . htmlspecialchars($truncated) . '</span>';
-                                                    }
-                                                    ?>
-                                                </td>
-                                                <td><?php echo htmlspecialchars($patient['phone']); ?></td>
-                                                <td><?php echo date('M j, Y', strtotime($patient['created_at'])); ?></td>
-                                                <td>
-                                                    <div class="btn-group" role="group">
-                                                        <a href="edit_patient.php?id=<?php echo $patient['id']; ?>" 
-                                                           class="btn btn-outline-primary btn-sm" 
-                                                           title="Edit Patient">
-                                                            <i class="fas fa-edit"></i>
-                                                        </a>
-                                                        <button type="button" 
-                                                                class="btn btn-outline-danger btn-sm delete-patient" 
-                                                                data-patient-id="<?php echo $patient['id']; ?>"
-                                                                data-patient-name="<?php echo htmlspecialchars($patient['name']); ?>"
-                                                                title="Delete Patient">
-                                                            <i class="fas fa-trash"></i>
-                                                        </button>
-                                                        <a href="add_appointment.php?patient_id=<?php echo $patient['id']; ?>" 
-                                                           class="btn btn-outline-success btn-sm" 
-                                                           title="Book Appointment">
-                                                            <i class="fas fa-calendar-plus"></i>
-                                                        </a>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        <?php endforeach; ?>
-                                    </tbody>
-                                </table>
-                            </div>
-                        <?php endif; ?>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Appointments Section -->
-        <div class="row mt-4">
-            <div class="col-12">
-                <div class="card shadow">
-                    <div class="card-header bg-white py-3">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <h5 class="m-0 font-weight-bold text-info">
-                                <i class="bi bi-calendar-event me-2"></i>
-                                Upcoming Appointments
-                            </h5>
-                            <span class="badge bg-info"><?php echo count($appointments); ?> appointments</span>
-                        </div>
-                    </div>
-                    <div class="card-body">
-                        <?php if (empty($appointments)): ?>
-                            <div class="text-center py-4">
-                                <i class="bi bi-calendar-x text-muted" style="font-size: 3rem;"></i>
-                                <h5 class="text-muted mt-3">No upcoming appointments scheduled</h5>
-                                <p class="text-muted">Appointments will appear here when scheduled.</p>
-                            </div>
-                        <?php else: ?>
-                            <div class="table-responsive">
-                                <table class="table table-hover" id="appointmentsTable">
-                                    <thead class="table-info">
-                                        <tr>
-                                            <th><i class="bi bi-clock me-1"></i>Date & Time</th>
-                                            <th><i class="fas fa-hourglass-half me-1"></i>Duration</th>
-                                            <th><i class="bi bi-person me-1"></i>Patient</th>
-                                            <th><i class="bi bi-card-text me-1"></i>IC Number</th>
-                                            <th><i class="bi bi-person-badge me-1"></i>Doctor</th>
-                                            <th><i class="bi bi-chat-text me-1"></i>Reason</th>
-                                            <th><i class="bi bi-gear me-1"></i>Actions</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="appointmentsTableBody">
-                                        <?php foreach ($appointments as $appointment): ?>
-                                            <tr>
-                                                <td class="fw-semibold">
-                                                    <i class="bi bi-calendar-date text-primary me-1"></i>
-                                                    <?php echo date('M j, Y g:i A', strtotime($appointment['start_time'] ?? $appointment['appointment_date'])); ?>
-                                                </td>
-                                                <td>
-                                                    <?php 
-                                                    if ($appointment['start_time'] && $appointment['end_time']) {
-                                                        $duration = (strtotime($appointment['end_time']) - strtotime($appointment['start_time'])) / 60;
-                                                        echo "{$duration} min";
-                                                    } else {
-                                                        echo '60 min'; // Default
-                                                    }
-                                                    ?>
-                                                </td>
-                                                <td>
-                                                    <a href="appointment_detail.php?id=<?php echo $appointment['appointment_id']; ?>" 
-                                                       class="text-primary text-decoration-none fw-bold">
-                                                        <i class="bi bi-person-circle me-1"></i>
-                                                        <?php echo htmlspecialchars($appointment['patient_name']); ?>
-                                                    </a>
-                                                </td>
-                                                <td>
-                                                    <code>
-                                                        <?php 
-                                                        // Mask IC number - show first characters, mask last 4
-                                                        $icNumber = $appointment['ic_number'];
-                                                        if (strlen($icNumber) >= 4) {
-                                                            echo htmlspecialchars(substr($icNumber, 0, -4) . 'XXXX');
-                                                        } else {
-                                                            echo htmlspecialchars($icNumber);
-                                                        }
-                                                        ?>
-                                                    </code>
-                                                </td>
-                                                <td><?php echo htmlspecialchars($appointment['doctor_name']); ?></td>
-                                                <td style="max-width: 200px;">
-                                                    <?php 
-                                                    $reason = $appointment['reason'];
-                                                    if ($reason === null || $reason === '') {
-                                                        echo '<em class="text-muted">Unable to decrypt reason</em>';
-                                                    } else {
-                                                        $cleanReason = strip_tags(html_entity_decode($reason));
-                                                        if (strlen($cleanReason) > 50) {
-                                                            $truncated = substr($cleanReason, 0, 50) . '...';
-                                                        } else {
-                                                            $truncated = $cleanReason;
-                                                        }
-                                                        echo '<span class="reason-text" title="' . htmlspecialchars($cleanReason) . '" style="cursor: default; text-decoration: none; color: inherit;">' . htmlspecialchars($truncated) . '</span>';
-                                                    }
-                                                    ?>
-                                                </td>
-                                                <td>
-                                                    <button type="button" 
-                                                            class="btn btn-outline-danger btn-sm cancel-appointment" 
-                                                            data-appointment-id="<?php echo $appointment['appointment_id']; ?>"
-                                                            data-patient-name="<?php echo htmlspecialchars($appointment['patient_name']); ?>"
-                                                            title="Cancel Appointment">
-                                                        <i class="bi bi-x-circle"></i> Cancel
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                        <?php endforeach; ?>
-                                    </tbody>
-                                </table>
-                            </div>
-                        <?php endif; ?>
                     </div>
                 </div>
             </div>

@@ -2,9 +2,9 @@
 
 ## Overview
 
-The Visual Analytics feature enhances the Private Clinic Patient Record System's Admin Dashboard by adding interactive data visualizations. The primary component is a bar chart displaying appointment counts for the next 7 days, providing administrators with immediate visual insights into workload distribution and scheduling patterns.
+The Visual Analytics feature enhances the Private Clinic Patient Record System's Admin Dashboard by adding interactive data visualizations. The primary component is a line chart displaying appointment counts with the ability to toggle between weekly (7 days) and monthly (30 days) views, providing administrators with immediate visual insights into workload distribution, scheduling patterns, and trends over time.
 
-This feature integrates seamlessly with the existing PHP-based dashboard, leveraging Chart.js for client-side rendering and maintaining the current Bootstrap-based styling framework. The implementation follows the existing architecture patterns while adding minimal overhead to page load times.
+This feature integrates seamlessly with the existing PHP-based dashboard, leveraging Chart.js for client-side rendering and maintaining the current Bootstrap-based styling framework. The implementation follows the existing architecture patterns while adding minimal overhead to page load times. The line chart visualization with view toggles provides a more sophisticated and flexible analytics experience.
 
 ## Architecture
 
@@ -31,50 +31,71 @@ The Visual Analytics feature follows a three-tier architecture:
 **Purpose**: Handles data retrieval and processing for visual analytics
 
 **Key Methods**:
-- `getNext7DaysAppointmentCounts()`: Returns array of appointment counts for next 7 days
-- `generateDateLabels()`: Creates abbreviated day labels (Mon, Tue, Wed, etc.)
-- `formatDataForChart()`: Converts raw data to Chart.js compatible format
+- `getAppointmentCounts($days)`: Returns array of appointment counts for specified number of days (7 or 30)
+- `generateDateLabels($days)`: Creates date labels appropriate for the time period
+- `formatDataForChart($days)`: Converts raw data to Chart.js compatible format
 
-**Database Query**:
+**Database Query (Parameterized)**:
 ```sql
 SELECT DATE(start_time) as app_date, COUNT(*) as count 
 FROM appointments 
-WHERE start_time BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL 7 DAY) 
+WHERE start_time BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL ? DAY) 
 GROUP BY DATE(start_time)
 ORDER BY app_date ASC
 ```
 
 #### Data Processing Logic
-- Generates complete 7-day date range regardless of appointment availability
+- Generates complete date range (7 or 30 days) regardless of appointment availability
 - Fills missing dates with zero counts to ensure consistent chart display
-- Converts dates to abbreviated day names for user-friendly labels
+- Converts dates to appropriate labels based on view:
+  - Weekly view: Abbreviated day names (Mon, Tue, Wed, etc.)
+  - Monthly view: Date format (Dec 18, Dec 19, etc.)
 - Outputs JSON-encoded arrays for JavaScript consumption
+- Supports dynamic switching between time periods
 
 ### Frontend Components
 
-#### WeeklyWorkloadChart
-**Purpose**: Renders interactive bar chart using Chart.js
+#### WorkloadChart
+**Purpose**: Renders interactive line chart using Chart.js with view toggle functionality
 
 **Configuration**:
-- Chart Type: Bar chart with vertical orientation
-- Color Scheme: Soft blue (#3b82f6) with rounded corners
+- Chart Type: Line chart with smooth curves
+- Color Scheme: Soft blue (#3b82f6) for line, circular markers at data points
 - Responsive: Maintains aspect ratio across device sizes
-- Interactions: Hover tooltips showing exact counts
+- Interactions: Hover tooltips showing exact counts, clickable view toggles
+- Animation: Smooth transitions when switching between views
 
 **HTML Structure**:
 ```html
 <div class="card shadow">
-    <div class="card-header bg-white py-3">
+    <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
         <h5 class="m-0 font-weight-bold text-primary">
-            <i class="fas fa-chart-bar me-2"></i>
-            Weekly Workload
+            <i class="fas fa-chart-line me-2"></i>
+            Appointment Trends
         </h5>
+        <div class="btn-group btn-group-sm" role="group">
+            <button type="button" class="btn btn-outline-primary active" id="weeklyViewBtn">
+                Weekly
+            </button>
+            <button type="button" class="btn btn-outline-primary" id="monthlyViewBtn">
+                Monthly
+            </button>
+        </div>
     </div>
     <div class="card-body">
         <canvas id="workloadChart"></canvas>
     </div>
 </div>
 ```
+
+#### ViewToggleController
+**Purpose**: Manages switching between weekly and monthly views
+
+**Key Functions**:
+- `switchView(viewType)`: Fetches data for specified view and updates chart
+- `updateChart(labels, data)`: Updates Chart.js instance with new data
+- `highlightActiveButton(viewType)`: Updates button styling to show active view
+- `fetchAppointmentData(days)`: Makes AJAX request for appointment data
 
 ## Data Models
 
@@ -99,17 +120,22 @@ $chartData = [
 
 ```javascript
 const chartConfig = {
-    type: 'bar',
+    type: 'line',
     data: {
         labels: jsonDates,
         datasets: [{
             label: 'Appointments',
             data: jsonCounts,
-            backgroundColor: '#3b82f6',
-            borderColor: '#2563eb',
-            borderWidth: 1,
-            borderRadius: 4,
-            borderSkipped: false
+            borderColor: '#3b82f6',
+            backgroundColor: 'rgba(59, 130, 246, 0.1)',
+            borderWidth: 2,
+            fill: true,
+            tension: 0.4,
+            pointRadius: 4,
+            pointBackgroundColor: '#3b82f6',
+            pointBorderColor: '#fff',
+            pointBorderWidth: 2,
+            pointHoverRadius: 6
         }]
     },
     options: {
@@ -134,6 +160,10 @@ const chartConfig = {
                     stepSize: 1
                 }
             }
+        },
+        animation: {
+            duration: 750,
+            easing: 'easeInOutQuart'
         }
     }
 };
@@ -166,6 +196,26 @@ const chartConfig = {
 ### Property 6: JSON Data Format Consistency
 *For any* processed appointment data, the JSON output should contain two arrays of equal length: one for date labels and one for corresponding counts
 **Validates: Requirements 3.2**
+
+### Property 7: Weekly View Date Range
+*For any* current date, when the weekly view is selected, the Visual Analytics System should return exactly 7 consecutive days of appointment data starting from today
+**Validates: Requirements 6.2**
+
+### Property 8: Monthly View Date Range
+*For any* current date, when the monthly view is selected, the Visual Analytics System should return exactly 30 consecutive days of appointment data starting from today
+**Validates: Requirements 6.3**
+
+### Property 9: View Toggle State Consistency
+*For any* view selection (weekly or monthly), exactly one toggle button should have the active state while the other should not
+**Validates: Requirements 6.5**
+
+### Property 10: Chart Update Without Reload
+*For any* view switch operation, the chart should update its data without triggering a full page reload, maintaining the Chart.js instance
+**Validates: Requirements 6.4**
+
+### Property 11: Monthly Date Format Appropriateness
+*For any* date in the monthly view, the label format should include both month and day information (e.g., "Dec 18") to distinguish dates across the 30-day span
+**Validates: Requirements 6.6**
 
 ## Error Handling
 
@@ -227,6 +277,15 @@ The testing strategy employs both unit tests for specific functionality and prop
 
 ### Accessibility Testing
 - Screen reader compatibility with ARIA labels
-- Keyboard navigation support for chart interactions
-- Color contrast validation for chart elements
+- Keyboard navigation support for chart interactions and view toggle buttons
+- Color contrast validation for chart elements and toggle buttons
 - Focus management when chart updates dynamically
+- Ensure toggle buttons are keyboard accessible with proper focus indicators
+
+### View Toggle Testing
+- Test switching from weekly to monthly view updates chart correctly
+- Test switching from monthly to weekly view updates chart correctly
+- Verify active button state changes appropriately
+- Test that chart data matches selected view period
+- Verify smooth transitions without page reload
+- Test button click handlers and event listeners

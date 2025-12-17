@@ -13,6 +13,7 @@ require_once __DIR__ . '/properties/PatientManagementPropertiesTest.php';
 require_once __DIR__ . '/properties/SecurityPropertiesTest.php';
 require_once __DIR__ . '/properties/UIPropertiesTest.php';
 require_once __DIR__ . '/properties/ICEncryptionPropertiesTest.php';
+require_once __DIR__ . '/properties/VisualAnalyticsPropertiesTest.php';
 
 class ComprehensivePropertyTestRunner {
     
@@ -66,6 +67,16 @@ class ComprehensivePropertyTestRunner {
             'testICNumberEncryptionRoundTripProperty',
             'testICNumberPrivacyMaskingProperty',
             'testICNumberSearchFunctionalityProperty'
+        ]);
+        
+        // Run Visual Analytics Tests
+        $this->runTestSuite('Visual Analytics Properties', new VisualAnalyticsPropertiesTest(), [
+            'testCompleteDateCoverageProperty',
+            'testDataConsistencyProperty',
+            'testDateLabelAccuracyProperty',
+            'testChartRenderingIntegrityProperty',
+            'testErrorHandlingGracefulDegradationProperty',
+            'testJSONDataFormatConsistencyProperty'
         ]);
         
         $endTime = microtime(true);

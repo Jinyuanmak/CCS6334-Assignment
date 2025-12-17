@@ -6,6 +6,7 @@
 
 require_once 'config.php';
 require_once 'db.php';
+require_once 'appointment_analytics.php';
 
 // Check authentication and session timeout
 Database::requireAuth();
@@ -126,6 +127,20 @@ try {
     error_log("Error loading appointment history: " . $e->getMessage());
     $appointmentHistory = [];
 }
+
+// Get appointment analytics data for Weekly Workload chart
+try {
+    $analyticsData = AppointmentAnalyticsService::getAnalyticsData();
+    $chartLabels = $analyticsData['json_labels'];
+    $chartCounts = $analyticsData['json_counts'];
+    $analyticsError = isset($analyticsData['is_fallback']) && $analyticsData['is_fallback'];
+} catch (Exception $e) {
+    error_log("Error loading appointment analytics: " . $e->getMessage());
+    // Fallback data for error cases
+    $chartLabels = json_encode(['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']);
+    $chartCounts = json_encode([0, 0, 0, 0, 0, 0, 0]);
+    $analyticsError = true;
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -141,6 +156,8 @@ try {
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <!-- SweetAlert2 -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <!-- Custom CSS -->
     <link rel="stylesheet" href="style.css">
 </head>
@@ -271,6 +288,63 @@ try {
                         </div>
                     </div>
                 </a>
+            </div>
+        </div>
+
+        <!-- Weekly Workload Analytics Section -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card shadow">
+                    <div class="card-header bg-white py-3">
+                        <h5 class="m-0 font-weight-bold text-primary">
+                            <i class="fas fa-chart-bar me-2"></i>
+                            Weekly Workload
+                            <?php if ($analyticsError): ?>
+                                <small class="text-muted ms-2">
+                                    <i class="fas fa-exclamation-triangle text-warning"></i>
+                                    Data temporarily unavailable
+                                </small>
+                            <?php endif; ?>
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <?php if ($analyticsError): ?>
+                            <div class="alert alert-warning mb-3" role="alert">
+                                <i class="fas fa-exclamation-triangle me-2"></i>
+                                <strong>Analytics Temporarily Unavailable</strong><br>
+                                Unable to load appointment analytics data. Please try refreshing the page or contact support if the issue persists.
+                            </div>
+                        <?php endif; ?>
+                        <div class="chart-container" role="img" aria-labelledby="chart-title" aria-describedby="chart-description">
+                            <div id="chart-title" class="visually-hidden">Weekly Workload Bar Chart</div>
+                            <div id="chart-description" class="visually-hidden">
+                                A bar chart showing appointment counts for the next 7 days. 
+                                Use Tab to navigate to the data table below for detailed information.
+                            </div>
+                            <canvas id="workloadChart" 
+                                    role="img" 
+                                    aria-label="Weekly appointment workload chart showing appointment counts for the next 7 days"
+                                    tabindex="0">
+                                <p>Your browser does not support the canvas element. Please see the data table below for appointment information.</p>
+                            </canvas>
+                            <!-- Accessible data table for screen readers -->
+                            <div id="chart-data-table" class="visually-hidden" aria-live="polite">
+                                <table class="table" role="table" aria-label="Weekly appointment data">
+                                    <caption>Appointment counts for the next 7 days</caption>
+                                    <thead>
+                                        <tr>
+                                            <th scope="col">Day</th>
+                                            <th scope="col">Appointments</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="chart-data-tbody">
+                                        <!-- Data will be populated by JavaScript -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -666,8 +740,133 @@ try {
             {}
         );
         
-        // SweetAlert for delete confirmations
+        // Chart rendering and dashboard initialization
         document.addEventListener('DOMContentLoaded', function() {
+            // Ensure Chart.js is loaded before initializing
+            if (typeof Chart === 'undefined') {
+                console.error('Chart.js library not loaded');
+                return;
+            }
+            // Initialize Weekly Workload Chart with enhanced configuration
+            const ctx = document.getElementById('workloadChart').getContext('2d');
+            
+            // Validate PHP JSON data before chart initialization
+            const jsonLabels = <?php echo $chartLabels; ?>;
+            const jsonCounts = <?php echo $chartCounts; ?>;
+            
+            // Ensure data is valid arrays
+            if (!Array.isArray(jsonLabels) || !Array.isArray(jsonCounts)) {
+                console.error('Invalid chart data format');
+                throw new Error('Chart data must be arrays');
+            }
+            
+            if (jsonLabels.length !== jsonCounts.length) {
+                console.error('Chart data arrays have mismatched lengths');
+                throw new Error('Labels and counts arrays must have equal length');
+            }
+            
+            // Chart.js configuration object with bar chart type and premium styling
+            const chartConfig = {
+                type: 'bar',
+                data: {
+                    labels: jsonLabels, // Use validated JSON data
+                    datasets: [{
+                        label: 'Appointments',
+                        data: jsonCounts, // Use validated JSON data
+                        backgroundColor: '#3b82f6', // Soft blue color as specified
+                        borderColor: '#2563eb',
+                        borderWidth: 1,
+                        borderRadius: 4, // Rounded corners for premium appearance
+                        borderSkipped: false
+                    }]
+                },
+                options: {
+                    responsive: true, // Responsive behavior configured
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            // Enhanced tooltip interactions
+                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                            titleColor: '#ffffff',
+                            bodyColor: '#ffffff',
+                            borderColor: '#3b82f6',
+                            borderWidth: 1,
+                            cornerRadius: 6,
+                            displayColors: false,
+                            callbacks: {
+                                label: function(context) {
+                                    return `${context.parsed.y} appointment${context.parsed.y !== 1 ? 's' : ''}`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                stepSize: 1,
+                                color: '#6b7280'
+                            },
+                            grid: {
+                                color: '#e5e7eb'
+                            }
+                        },
+                        x: {
+                            ticks: {
+                                color: '#6b7280'
+                            },
+                            grid: {
+                                display: false
+                            }
+                        }
+                    },
+                    // Enhanced interaction configuration
+                    interaction: {
+                        intersect: false,
+                        mode: 'index'
+                    },
+                    // Animation configuration for smooth rendering
+                    animation: {
+                        duration: 750,
+                        easing: 'easeInOutQuart'
+                    }
+                }
+            };
+            
+            // Initialize Chart.js with processed appointment data
+            try {
+                const workloadChart = new Chart(ctx, chartConfig);
+                
+                // Store chart reference for potential future updates
+                window.workloadChart = workloadChart;
+                
+                // Populate accessible data table for screen readers
+                populateAccessibleDataTable(jsonLabels, jsonCounts);
+                
+                // Add keyboard navigation support
+                addChartKeyboardNavigation(workloadChart, jsonLabels, jsonCounts);
+                
+                console.log('Weekly Workload chart initialized successfully');
+            } catch (error) {
+                console.error('Failed to initialize Weekly Workload chart:', error);
+                
+                // Fallback: Display error message in chart area and populate data table
+                const chartContainer = document.getElementById('workloadChart').parentElement;
+                chartContainer.innerHTML = `
+                    <div class="alert alert-warning text-center" role="alert" role="alert">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        <strong>Chart Unavailable</strong><br>
+                        Unable to render the weekly workload chart. Please refresh the page.
+                    </div>
+                `;
+                
+                // Still populate the accessible data table even if chart fails
+                populateAccessibleDataTable(jsonLabels, jsonCounts);
+            }
+            
             // Patient deletion
             document.querySelectorAll('.delete-patient').forEach(button => {
                 button.addEventListener('click', function(e) {
@@ -865,6 +1064,139 @@ try {
                     }
                 });
             });
+            
+            /**
+             * Populate accessible data table for screen readers
+             */
+            function populateAccessibleDataTable(labels, counts) {
+                const tbody = document.getElementById('chart-data-tbody');
+                if (!tbody) return;
+                
+                tbody.innerHTML = '';
+                
+                for (let i = 0; i < labels.length; i++) {
+                    const row = document.createElement('tr');
+                    const dayCell = document.createElement('td');
+                    const countCell = document.createElement('td');
+                    
+                    dayCell.textContent = labels[i];
+                    countCell.textContent = counts[i] + (counts[i] === 1 ? ' appointment' : ' appointments');
+                    
+                    row.appendChild(dayCell);
+                    row.appendChild(countCell);
+                    tbody.appendChild(row);
+                }
+            }
+            
+            /**
+             * Add keyboard navigation support to chart
+             */
+            function addChartKeyboardNavigation(chart, labels, counts) {
+                const canvas = document.getElementById('workloadChart');
+                let currentIndex = 0;
+                
+                canvas.addEventListener('keydown', function(event) {
+                    switch(event.key) {
+                        case 'ArrowRight':
+                        case 'ArrowDown':
+                            event.preventDefault();
+                            currentIndex = Math.min(currentIndex + 1, labels.length - 1);
+                            announceDataPoint(labels[currentIndex], counts[currentIndex]);
+                            highlightDataPoint(chart, currentIndex);
+                            break;
+                            
+                        case 'ArrowLeft':
+                        case 'ArrowUp':
+                            event.preventDefault();
+                            currentIndex = Math.max(currentIndex - 1, 0);
+                            announceDataPoint(labels[currentIndex], counts[currentIndex]);
+                            highlightDataPoint(chart, currentIndex);
+                            break;
+                            
+                        case 'Home':
+                            event.preventDefault();
+                            currentIndex = 0;
+                            announceDataPoint(labels[currentIndex], counts[currentIndex]);
+                            highlightDataPoint(chart, currentIndex);
+                            break;
+                            
+                        case 'End':
+                            event.preventDefault();
+                            currentIndex = labels.length - 1;
+                            announceDataPoint(labels[currentIndex], counts[currentIndex]);
+                            highlightDataPoint(chart, currentIndex);
+                            break;
+                            
+                        case 'Enter':
+                        case ' ':
+                            event.preventDefault();
+                            announceChartSummary(labels, counts);
+                            break;
+                    }
+                });
+                
+                // Announce initial focus
+                canvas.addEventListener('focus', function() {
+                    announceDataPoint(labels[currentIndex], counts[currentIndex]);
+                });
+            }
+            
+            /**
+             * Announce data point for screen readers
+             */
+            function announceDataPoint(label, count) {
+                const announcement = `${label}: ${count} ${count === 1 ? 'appointment' : 'appointments'}`;
+                
+                // Create or update live region for screen reader announcements
+                let liveRegion = document.getElementById('chart-live-region');
+                if (!liveRegion) {
+                    liveRegion = document.createElement('div');
+                    liveRegion.id = 'chart-live-region';
+                    liveRegion.setAttribute('aria-live', 'polite');
+                    liveRegion.setAttribute('aria-atomic', 'true');
+                    liveRegion.className = 'visually-hidden';
+                    document.body.appendChild(liveRegion);
+                }
+                
+                liveRegion.textContent = announcement;
+            }
+            
+            /**
+             * Announce chart summary
+             */
+            function announceChartSummary(labels, counts) {
+                const total = counts.reduce((sum, count) => sum + count, 0);
+                const max = Math.max(...counts);
+                const maxDay = labels[counts.indexOf(max)];
+                
+                const summary = `Chart summary: Total ${total} appointments across 7 days. Busiest day is ${maxDay} with ${max} appointments.`;
+                
+                let liveRegion = document.getElementById('chart-live-region');
+                if (!liveRegion) {
+                    liveRegion = document.createElement('div');
+                    liveRegion.id = 'chart-live-region';
+                    liveRegion.setAttribute('aria-live', 'polite');
+                    liveRegion.setAttribute('aria-atomic', 'true');
+                    liveRegion.className = 'visually-hidden';
+                    document.body.appendChild(liveRegion);
+                }
+                
+                liveRegion.textContent = summary;
+            }
+            
+            /**
+             * Highlight data point visually (for users who can see)
+             */
+            function highlightDataPoint(chart, index) {
+                // Reset all bar colors
+                const dataset = chart.data.datasets[0];
+                dataset.backgroundColor = Array(dataset.data.length).fill('#3b82f6');
+                
+                // Highlight current bar
+                dataset.backgroundColor[index] = '#1d4ed8'; // Darker blue for highlight
+                
+                chart.update('none'); // Update without animation for better accessibility
+            }
 
         });
 

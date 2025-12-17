@@ -91,7 +91,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Sanitize and validate input data
     $formData['name'] = ucwords(strtolower(trim(Database::sanitizeInput($_POST['name'] ?? ''))));
     $formData['ic_number'] = Database::sanitizeInput($_POST['ic_number'] ?? '');
-    $formData['diagnosis'] = Database::sanitizeInput($_POST['diagnosis'] ?? '');
+    
+    // CRITICAL FIX: Don't sanitize diagnosis - TinyMCE handles HTML content
+    // Just trim and remove dangerous scripts
+    $rawDiagnosis = $_POST['diagnosis'] ?? '';
+    $formData['diagnosis'] = trim(strip_tags($rawDiagnosis, '<p><br><ul><ol><li><strong><b><em><i><u><span><div><h1><h2><h3><h4><h5><h6><blockquote><pre><code>'));
     
     // Combine country code and phone number
     $formData['country_code'] = Database::sanitizeInput($_POST['country_code'] ?? '+60');
@@ -208,12 +212,47 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $changeDetails
                 );
                 
-                // Log message for doctors
+                // Prepare change details for message log
+                $changeDetailsArray = [];
+                if ($patient['name'] !== $formData['name']) {
+                    $changeDetailsArray['Name'] = [
+                        'old' => $patient['name'],
+                        'new' => $formData['name']
+                    ];
+                }
+                if ($patient['ic_number'] !== $formData['ic_number']) {
+                    $changeDetailsArray['IC Number'] = [
+                        'old' => $patient['ic_number'],
+                        'new' => $formData['ic_number']
+                    ];
+                }
+                if ($patient['diagnosis'] !== $formData['diagnosis']) {
+                    $changeDetailsArray['Diagnosis'] = [
+                        'old' => 'Updated',
+                        'new' => 'Updated'
+                    ];
+                }
+                if ($patient['phone'] !== $formData['phone']) {
+                    $changeDetailsArray['Phone'] = [
+                        'old' => $patient['phone'],
+                        'new' => $formData['phone']
+                    ];
+                }
+                
+                // Create message with change details
+                $messageText = !empty($changeDetailsArray) 
+                    ? "Patient {$formData['name']} record has been updated by administrator."
+                    : "Patient {$formData['name']} record has been updated by administrator (no changes detected).";
+                
+                // Log message for doctors with change details
                 Database::logMessage(
                     'PATIENT_UPDATE',
                     'Patient Record Updated',
-                    "Patient {$formData['name']} record has been updated by administrator.",
-                    $patientId
+                    $messageText,
+                    $patientId,
+                    null,
+                    null,
+                    $changeDetailsArray
                 );
                 
                 // Set success message and redirect to dashboard
@@ -360,26 +399,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                           rows="4"
                                           maxlength="500"
                                           required><?php 
-                                          // Handle TinyMCE content properly for form validation errors
-                                          $diagnosis = $formData['diagnosis'];
-                                          
-                                          // If this is from form submission (POST), preserve the content as-is
-                                          if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-                                              // Form validation failed - preserve user input without double-encoding
-                                              if ($diagnosis !== '' && strip_tags($diagnosis) === $diagnosis) {
-                                                  // Plain text - safe to escape
-                                                  echo htmlspecialchars($diagnosis);
-                                              } else {
-                                                  // Contains HTML - output directly for TinyMCE
-                                                  echo $diagnosis;
-                                              }
-                                          } else {
-                                              // Initial page load - decode database content for TinyMCE
-                                              $decodedDiagnosis = html_entity_decode($diagnosis, ENT_QUOTES, 'UTF-8');
-                                              $allowedTags = '<p><br><ul><ol><li><strong><b><em><i><u><span><div><h1><h2><h3><h4><h5><h6><blockquote><pre><code>';
-                                              $cleanDiagnosis = strip_tags($decodedDiagnosis, $allowedTags);
-                                              echo $cleanDiagnosis;
-                                          }
+                                          // Output diagnosis content for TinyMCE
+                                          // TinyMCE expects clean HTML, so we output it directly
+                                          echo $formData['diagnosis'];
                                           ?></textarea>
                                 <?php if (isset($errors['diagnosis'])): ?>
                                     <div class="invalid-feedback">

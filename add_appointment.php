@@ -60,7 +60,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $appointmentDate = Database::sanitizeInput($_POST['appointment_date'] ?? '');
     $appointmentTime = Database::sanitizeInput($_POST['appointment_time'] ?? '');
     $doctorName = Database::sanitizeInput($_POST['doctor_name'] ?? '');
-    $reason = Database::sanitizeInput($_POST['reason'] ?? '');
+    
+    // CRITICAL FIX: Don't sanitize reason - TinyMCE handles HTML content
+    // Just trim and remove dangerous scripts
+    $rawReason = $_POST['reason'] ?? '';
+    $reason = trim(strip_tags($rawReason, '<p><br><ul><ol><li><strong><b><em><i><u><span><div><h1><h2><h3><h4><h5><h6><blockquote><pre><code>'));
     
     // Validation
     $errors = [];
@@ -423,17 +427,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                           required 
                                           rows="4"
                                           placeholder="Enter the reason for this appointment"><?php 
-                                          // Handle TinyMCE content properly for form validation errors
+                                          // Output reason content for TinyMCE
+                                          // TinyMCE expects clean HTML, so we output it directly
                                           if (isset($_POST['reason'])) {
-                                              $reason = $_POST['reason'];
-                                              // For TinyMCE, preserve HTML content without double-encoding
-                                              if ($reason !== '' && strip_tags($reason) === $reason) {
-                                                  // Plain text - safe to escape
-                                                  echo htmlspecialchars($reason);
-                                              } else {
-                                                  // Contains HTML - output directly for TinyMCE
-                                                  echo $reason;
-                                              }
+                                              echo $reason;
                                           }
                                           ?></textarea>
                                 <div class="form-text">

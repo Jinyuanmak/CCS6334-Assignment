@@ -100,7 +100,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $startTime = Database::sanitizeInput($_POST['start_time'] ?? '');
         $endTime = Database::sanitizeInput($_POST['end_time'] ?? '');
         $doctorName = Database::sanitizeInput($_POST['doctor_name'] ?? '');
-        $reason = Database::sanitizeInput($_POST['reason'] ?? '');
+        
+        // CRITICAL FIX: Don't sanitize reason - TinyMCE handles HTML content
+        // Just trim and remove dangerous scripts
+        $rawReason = $_POST['reason'] ?? '';
+        $reason = trim(strip_tags($rawReason, '<p><br><ul><ol><li><strong><b><em><i><u><span><div><h1><h2><h3><h4><h5><h6><blockquote><pre><code>'));
         
         // Validation
         if (empty($appointmentDate)) {
@@ -593,27 +597,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                                   placeholder="Enter the reason for this appointment" 
                                                   maxlength="500" 
                                                   required><?php 
-                                                  // Handle TinyMCE content properly for form validation errors
+                                                  // Output reason content for TinyMCE
+                                                  // TinyMCE expects clean HTML, so we output it directly
                                                   if (!empty($formData['reason'])) {
-                                                      $reason = $formData['reason'];
-                                                      
-                                                      // If this is from form submission (POST), preserve the content as-is
-                                                      if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-                                                          // Form validation failed - preserve user input without double-encoding
-                                                          if ($reason !== '' && strip_tags($reason) === $reason) {
-                                                              // Plain text - safe to escape
-                                                              echo htmlspecialchars($reason);
-                                                          } else {
-                                                              // Contains HTML - output directly for TinyMCE
-                                                              echo $reason;
-                                                          }
-                                                      } else {
-                                                          // Initial page load - decode database content for TinyMCE
-                                                          $decodedReason = html_entity_decode($reason, ENT_QUOTES, 'UTF-8');
-                                                          $allowedTags = '<p><br><ul><ol><li><strong><b><em><i><u><span><div><h1><h2><h3><h4><h5><h6><blockquote><pre><code>';
-                                                          $cleanReason = strip_tags($decodedReason, $allowedTags);
-                                                          echo $cleanReason;
-                                                      }
+                                                      echo $formData['reason'];
                                                   }
                                                   ?></textarea>
                                         <?php if (isset($errors['reason'])): ?>

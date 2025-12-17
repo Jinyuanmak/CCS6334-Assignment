@@ -26,7 +26,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Sanitize and validate input data
     $formData['name'] = ucwords(strtolower(trim(Database::sanitizeInput($_POST['name'] ?? ''))));
     $formData['ic_number'] = Database::sanitizeInput($_POST['ic_number'] ?? '');
-    $formData['diagnosis'] = Database::sanitizeInput($_POST['diagnosis'] ?? '');
+    
+    // CRITICAL FIX: Don't sanitize diagnosis - TinyMCE handles HTML content
+    // Just trim and remove dangerous scripts
+    $rawDiagnosis = $_POST['diagnosis'] ?? '';
+    $formData['diagnosis'] = trim(strip_tags($rawDiagnosis, '<p><br><ul><ol><li><strong><b><em><i><u><span><div><h1><h2><h3><h4><h5><h6><blockquote><pre><code>'));
     
     // Combine country code and phone number
     $countryCode = Database::sanitizeInput($_POST['country_code'] ?? '+60');
@@ -261,16 +265,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                           rows="4"
                                           maxlength="500"
                                           required><?php 
-                                          // For TinyMCE, preserve HTML content without double-encoding
-                                          // Only escape if content contains no HTML tags (plain text)
-                                          $diagnosis = $formData['diagnosis'];
-                                          if ($diagnosis !== '' && strip_tags($diagnosis) === $diagnosis) {
-                                              // Plain text - safe to escape
-                                              echo htmlspecialchars($diagnosis);
-                                          } else {
-                                              // Contains HTML - output directly for TinyMCE
-                                              echo $diagnosis;
-                                          }
+                                          // Output diagnosis content for TinyMCE
+                                          // TinyMCE expects clean HTML, so we output it directly
+                                          echo $formData['diagnosis'];
                                           ?></textarea>
                                 <?php if (isset($errors['diagnosis'])): ?>
                                     <div class="invalid-feedback">

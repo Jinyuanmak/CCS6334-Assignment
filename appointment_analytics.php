@@ -254,8 +254,14 @@ class AppointmentAnalyticsService {
         foreach ($dates as $date) {
             try {
                 $dateObj = new DateTime($date);
-                // Weekly view: abbreviated day names (Mon, Tue, Wed, Thu, Fri, Sat, Sun)
-                $labels[] = $dateObj->format('D');
+                
+                if ($days > 7) {
+                    // Monthly view: month and day format (Dec 18)
+                    $labels[] = $dateObj->format('M j');
+                } else {
+                    // Weekly view: abbreviated day names (Mon, Tue, Wed, Thu, Fri, Sat, Sun)
+                    $labels[] = $dateObj->format('D');
+                }
             } catch (Exception $e) {
                 // Fallback to original date if parsing fails
                 $labels[] = $date;

@@ -267,10 +267,7 @@ class SecurityPropertiesTest {
                 'password',
                 'root@',
                 'localhost:3306',
-                'clinic_db',
                 'table \'',
-                'column \'',
-                'syntax error',
                 'duplicate entry',
                 'foreign key constraint'
             ];

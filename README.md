@@ -25,6 +25,8 @@ A comprehensive, secure web-based patient management system designed for private
 - **Patient Search**: Advanced search functionality with encrypted data support
 - **Medical History**: Rich text diagnosis with TinyMCE editor
 - **IC Number Encryption**: Malaysian IC numbers encrypted with AES-256
+- **Auto-formatting**: Automatic name capitalization and IC number formatting
+- **Form Validation**: Client-side validation with SweetAlert notifications
 
 ### 📅 Appointment Management
 - **Appointment Scheduling**: Create, edit, and manage appointments
@@ -32,6 +34,8 @@ A comprehensive, secure web-based patient management system designed for private
 - **Time Slot Management**: Prevent scheduling conflicts
 - **Appointment History**: Track completed and upcoming appointments
 - **Duration Control**: Standardized appointment durations (30, 60, 90, 120 minutes)
+- **Rich Text Reasons**: TinyMCE editor for appointment reasons
+- **Status Tracking**: Real-time appointment status (upcoming, in-progress, completed)
 
 ### 👩‍⚕️ Doctor Portal
 - **Doctor Dashboard**: Personalized view for medical professionals
@@ -39,19 +43,42 @@ A comprehensive, secure web-based patient management system designed for private
 - **Appointment Schedule**: Doctor-specific appointment management
 - **Message Notifications**: Real-time notifications for patient updates
 - **Unread Message Badge**: Visual indicators for new notifications
+- **Message Log System**: Comprehensive notification management with read/unread status
+- **Change Tracking**: Detailed change logs for patient updates
+- **Pagination**: Efficient browsing of large datasets
 
 ### 🔐 Security & Authentication
 - **Role-Based Access Control**: Admin and Doctor roles with different permissions
 - **Progressive Lockout System**: Automatic account lockout after failed attempts
 - **Session Management**: Secure session handling with timeout
-- **Audit Logging**: Comprehensive activity tracking
+- **Audit Logging**: Comprehensive activity tracking with IP addresses
 - **Input Sanitization**: XSS and SQL injection prevention
+- **Database Security**: Multi-tier database users with minimal privileges
+- **Encryption Keys**: Dual encryption system for different data types
 
-### 📊 Reporting & Analytics
-- **Dashboard Statistics**: Real-time counts and metrics
-- **Appointment History**: Detailed appointment tracking
-- **Patient Analytics**: Patient registration trends
-- **Audit Reports**: Security and activity logs
+### 📊 Visual Analytics & Reporting
+- **Interactive Charts**: Chart.js powered line charts with smooth animations
+- **Weekly View**: 7-day appointment trends (Mon-Sun)
+- **Monthly View**: 12-month appointment patterns (Jan-Dec)
+- **View Toggle**: Dynamic switching between time periods without page reload
+- **Real-time Data**: Live appointment counts and statistics
+- **Responsive Charts**: Mobile-friendly visualizations
+- **Accessibility**: Screen reader support and keyboard navigation
+- **Error Handling**: Graceful fallback when data unavailable
+
+### 🛠️ System Administration
+- **Database Backup**: One-click encrypted backup system
+- **Seed Data**: Automated test data generation
+- **Audit Trail**: Complete security logging for all admin actions
+- **System Maintenance**: Automated cleanup and optimization tools
+- **Digital Clock**: Real-time dashboard clock display
+
+### 🧪 Testing Framework
+- **Property-Based Testing**: Comprehensive test suite with 100+ iterations per property
+- **Multiple Test Categories**: Authentication, Patient Management, Security, UI, Encryption, Analytics
+- **Automated Test Runner**: Single command execution of all test suites
+- **Test Coverage**: 9 different property test classes covering all major features
+- **Continuous Validation**: Ensures system correctness across all components
 
 ## 🛡️ Security Features
 
@@ -82,10 +109,12 @@ A comprehensive, secure web-based patient management system designed for private
 - **PDO**: Database abstraction layer with prepared statements
 
 ### Frontend
-- **Bootstrap 5**: Responsive UI framework
-- **TinyMCE**: Rich text editor for medical notes
-- **FontAwesome**: Icon library
-- **SweetAlert2**: Enhanced user notifications
+- **Bootstrap 5**: Responsive UI framework with custom styling
+- **Chart.js**: Interactive data visualizations with animations
+- **TinyMCE**: Rich text editor for medical notes and appointment reasons
+- **FontAwesome & Bootstrap Icons**: Comprehensive icon libraries
+- **SweetAlert2**: Enhanced user notifications and confirmations
+- **Custom JavaScript**: Form validation, auto-formatting, and AJAX functionality
 
 ### Database Design
 - **Normalized Schema**: Proper relational design
@@ -181,31 +210,33 @@ CCS6334-Assignment/
 ├── 📄 index.php                 # Login page
 ├── 📄 config.php               # System configuration
 ├── 📄 db.php                   # Database connection class
-├── 📄 dashboard.php            # Admin dashboard
-├── 📄 doctor_dashboard.php     # Doctor portal
+├── 📄 dashboard.php            # Admin dashboard with visual analytics
+├── 📄 doctor_dashboard.php     # Doctor portal with message system
 ├── 📄 style.css                # Custom styling
-├── 📄 javascript.js            # Frontend functionality
+├── 📄 javascript.js            # Frontend functionality with TinyMCE
+├── 📄 data.php                 # AJAX data service for charts
 ├── 📄 README.md               # This file
 ├── 📄 SETUP_DATABASE_SECURITY.md # Security setup guide
 │
 ├── 👥 Patient Management/
-│   ├── 📄 add_patient.php      # Add new patients
+│   ├── 📄 add_patient.php      # Add new patients with validation
 │   ├── 📄 edit_patient.php     # Edit patient records
 │   ├── 📄 view_patient.php     # View patient details
-│   ├── 📄 delete_patient.php   # Delete patients
-│   └── 📄 all_patients.php     # Patient listing
+│   ├── 📄 delete_patient.php   # Delete patients with confirmation
+│   └── 📄 all_patients.php     # Patient listing with search
 │
 ├── 📅 Appointment System/
-│   ├── 📄 add_appointment.php      # Schedule appointments
+│   ├── 📄 add_appointment.php      # Schedule appointments with rich text
 │   ├── 📄 edit_appointment.php     # Modify appointments
 │   ├── 📄 appointment_detail.php   # Appointment details
+│   ├── 📄 appointment_analytics.php # Analytics service for charts
 │   ├── 📄 delete_appointment.php   # Cancel appointments
 │   ├── 📄 all_upcoming.php        # Upcoming appointments
 │   └── 📄 all_history.php         # Appointment history
 │
 ├── 🔐 Security & Audit/
-│   ├── 📄 audit_log.php        # Activity logs
-│   ├── 📄 message_log.php      # Doctor notifications
+│   ├── 📄 audit_log.php        # Security activity logs
+│   ├── 📄 message_log.php      # Doctor notification system
 │   └── 📄 logout.php           # Secure logout
 │
 ├── 🗄️ Database/
@@ -213,58 +244,98 @@ CCS6334-Assignment/
 │       ├── 📄 schema.sql       # Database structure
 │       └── 📄 create_security_users.sql # Security setup
 │
-├── 🧪 Testing/
-│   ├── 📄 run_all_property_tests.php # Test runner
+├── 🧪 Testing Framework/
+│   ├── 📄 run_all_property_tests.php # Comprehensive test runner
+│   ├── 📄 database_verification.php  # Database setup verification
 │   └── properties/
 │       ├── 📄 AuthenticationPropertiesTest.php
 │       ├── 📄 PatientManagementPropertiesTest.php
 │       ├── 📄 SecurityPropertiesTest.php
 │       ├── 📄 UIPropertiesTest.php
-│       └── 📄 ICEncryptionPropertiesTest.php
+│       ├── 📄 ICEncryptionPropertiesTest.php
+│       └── 📄 VisualAnalyticsPropertiesTest.php
 │
-└── 🛠️ Utilities/
-    ├── 📄 seed_data.php        # Sample data generator
-    └── 📄 backup_system.php    # Database backup utility
+├── 📊 Visual Analytics/
+│   └── .kiro/specs/visual-analytics/
+│       ├── 📄 requirements.md  # Feature requirements
+│       ├── 📄 design.md        # Technical design
+│       └── 📄 tasks.md         # Implementation tasks
+│
+└── 🛠️ System Utilities/
+    ├── 📄 seed_data.php        # Test data generator with secure hashing
+    └── 📄 backup_system.php    # Encrypted database backup system
 ```
 
-## 🧪 Testing
+## 🧪 Testing Framework
 
 ### Property-Based Testing
-The system includes comprehensive property-based tests to ensure correctness:
+The system includes comprehensive property-based tests with 100+ iterations per property to ensure statistical confidence:
 
 ```bash
-# Run all property tests
+# Run all property tests (comprehensive suite)
 php tests/run_all_property_tests.php
+
+# Generate JSON report
+php tests/run_all_property_tests.php --json
 
 # Run specific test suites
 php tests/properties/SecurityPropertiesTest.php
 php tests/properties/PatientManagementPropertiesTest.php
+php tests/properties/VisualAnalyticsPropertiesTest.php
 ```
 
 ### Test Categories
-- **Authentication Properties**: Login security and session management
-- **Patient Management Properties**: CRUD operations and data integrity
-- **Security Properties**: Encryption, input validation, and access control
-- **UI Properties**: Interface consistency and responsive design
-- **IC Encryption Properties**: Malaysian IC number encryption/decryption
+- **Authentication Properties**: Login security, session management, and access control
+- **Patient Management Properties**: CRUD operations, data integrity, and form validation
+- **Security Properties**: Encryption effectiveness, input sanitization, and error handling
+- **UI Properties**: Interface consistency, responsive design, and accessibility
+- **IC Encryption Properties**: Malaysian IC number encryption/decryption round-trip testing
+- **Visual Analytics Properties**: Chart data consistency, date coverage, and error handling
+
+### Advanced Testing Features
+- **Statistical Validation**: Each property runs 100 iterations with random data generation
+- **Comprehensive Coverage**: 9 test classes covering all major system components
+- **Automated Test Runner**: Single command execution with detailed reporting
+- **Error Isolation**: Individual test failure reporting with specific error details
+- **Performance Metrics**: Execution time tracking and success rate calculation
 
 ### Database Verification
 ```bash
-# Verify database setup and security
+# Verify database setup and security configuration
 php tests/database_verification.php
+
+# Check encryption functionality
+php tests/properties/ICEncryptionPropertiesTest.php
 ```
+
+### Test Results Dashboard
+The test runner provides:
+- ✅ **Overall Statistics**: Total tests, pass/fail counts, success percentage
+- 📊 **Suite Breakdown**: Individual test suite performance metrics  
+- 🎯 **Detailed Reporting**: Specific failure information and debugging data
+- ⏱️ **Performance Tracking**: Execution time and efficiency metrics
 
 ## 🔌 API Endpoints
 
 ### AJAX Endpoints
-- `GET message_log.php?ajax=count` - Get unread message count
-- `POST add_patient.php` - Create new patient
-- `POST edit_patient.php` - Update patient record
-- `POST add_appointment.php` - Schedule appointment
+- `GET message_log.php?ajax=count` - Get unread message count for doctors
+- `GET data.php?mode=chart&view=weekly` - Get weekly appointment analytics data
+- `GET data.php?mode=chart&view=monthly` - Get monthly appointment analytics data
+- `POST add_patient.php` - Create new patient with validation
+- `POST edit_patient.php` - Update patient record with change tracking
+- `POST add_appointment.php` - Schedule appointment with rich text support
 
-### Authentication
-- `POST index.php` - User login
-- `GET logout.php` - User logout
+### Authentication & Security
+- `POST index.php` - User login with progressive lockout
+- `GET logout.php` - Secure logout with session cleanup
+- `GET backup_system.php` - Admin-only database backup download
+- `GET audit_log.php` - Security audit trail (admin only)
+
+### Visual Analytics API
+- **Weekly View**: Returns 7-day appointment data (Mon-Sun)
+- **Monthly View**: Returns 12-month appointment data (Jan-Dec)
+- **Real-time Updates**: Dynamic chart updates without page reload
+- **Error Handling**: Graceful fallback data when database unavailable
 
 ## 🔒 Security Considerations
 
@@ -290,29 +361,87 @@ Header always set Strict-Transport-Security "max-age=63072000"
 - Update dependencies and security patches
 - Review user access permissions
 
+## 📊 Visual Analytics Feature
+
+### Interactive Dashboard Charts
+The Visual Analytics feature provides administrators with powerful data visualization capabilities:
+
+#### Weekly View
+- **7-Day Trends**: Displays appointment counts for the current week (Monday through Sunday)
+- **Real-time Data**: Updates automatically based on current appointment schedule
+- **Interactive Tooltips**: Hover over data points to see exact appointment counts
+
+#### Monthly View  
+- **12-Month Overview**: Shows appointment patterns across calendar months (Jan-Dec)
+- **Yearly Trends**: Helps identify seasonal patterns and planning opportunities
+- **Smooth Transitions**: Animated switching between weekly and monthly views
+
+#### Technical Implementation
+- **Chart.js Integration**: Professional line charts with smooth curves and animations
+- **AJAX Data Loading**: Dynamic data fetching without page reloads
+- **Error Handling**: Graceful fallback when database is unavailable
+- **Accessibility**: Screen reader support and keyboard navigation
+- **Responsive Design**: Works seamlessly on desktop and mobile devices
+
+#### Data Processing
+- **AppointmentAnalyticsService**: Dedicated PHP service for data processing
+- **Date Range Generation**: Ensures complete coverage even for days without appointments
+- **Zero-Fill Logic**: Missing dates automatically filled with zero counts
+- **JSON API**: RESTful endpoints for chart data retrieval
+
 ## 🎨 Customization
 
 ### Styling
-- Edit `style.css` for custom themes
-- Bootstrap 5 variables can be overridden
+- Edit `style.css` for custom themes and chart colors
+- Bootstrap 5 variables can be overridden for consistent branding
 - TinyMCE themes configurable in `javascript.js`
+- Chart.js styling customizable through configuration objects
 
 ### Configuration
 - Database settings in `config.php`
 - Session timeout and security settings
-- Encryption key management
+- Encryption key management for sensitive data
+- Chart display preferences and animation settings
+
+## � Messarge & Notification System
+
+### Doctor Notification System
+Advanced messaging system keeps doctors informed about patient updates:
+
+#### Message Types
+- **Patient Updates**: Notifications when patient records are modified
+- **Patient Creation**: Alerts when new patients are assigned to a doctor
+- **Appointment Changes**: Updates about appointment modifications
+- **System Notifications**: Important system-wide announcements
+
+#### Features
+- **Real-time Badge**: Unread message count displayed in navigation
+- **Change Tracking**: Detailed before/after comparisons for patient updates
+- **Read/Unread Status**: Visual indicators for message status
+- **Bulk Actions**: Mark all messages as read functionality
+- **Pagination**: Efficient browsing of message history
+- **Rich Display**: Card-based layout with color-coded message types
+
+#### Technical Implementation
+- **AJAX Count Updates**: Real-time unread message count via API
+- **JSON Change Details**: Structured storage of field-level changes
+- **Doctor-Specific Filtering**: Messages targeted to specific doctors
+- **Responsive Design**: Mobile-friendly message cards and navigation
 
 ## 📈 Performance Optimization
 
 ### Database
-- Indexed columns for fast queries
-- Pagination for large datasets
-- Connection pooling with different privilege levels
+- Indexed columns for fast queries and analytics
+- Pagination for large datasets (patients, appointments, messages, audit logs)
+- Connection pooling with different privilege levels (public, admin, root)
+- Optimized SQL queries with date range filtering for analytics
 
 ### Frontend
-- Minified CSS and JavaScript
-- Lazy loading for large forms
-- Responsive design for mobile devices
+- Minified CSS and JavaScript libraries
+- Lazy loading for TinyMCE editors and large forms
+- Responsive design optimized for mobile devices
+- Chart.js animations with performance-optimized rendering
+- AJAX data loading to prevent full page reloads
 
 ## 🤝 Contributing
 
@@ -324,22 +453,40 @@ Header always set Strict-Transport-Security "max-age=63072000"
 
 ### Development Guidelines
 - Follow PSR-12 coding standards
-- Add comprehensive error handling
-- Include security considerations
-- Write property-based tests
-- Document new features
+- Add comprehensive error handling with graceful degradation
+- Include security considerations and input validation
+- Write property-based tests with 100+ iterations
+- Document new features in README and create specs for complex features
+- Use the Kiro specs system for feature development
+- Maintain test coverage across all major components
+- Follow the established encryption patterns for sensitive data
 
 ## 📄 License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
 
-## 🆘 Support
+## 🆘 Support & Troubleshooting
 
+### Getting Help
 For support and questions:
-- Check the documentation in this README
-- Review the security setup guide
-- Run the property-based tests to verify functionality
-- Check audit logs for system issues
+- **Documentation**: Check this comprehensive README for feature details
+- **Security Guide**: Review `SETUP_DATABASE_SECURITY.md` for security configuration
+- **Test Suite**: Run `php tests/run_all_property_tests.php` to verify system functionality
+- **Audit Logs**: Check `audit_log.php` for system activity and security events
+- **Visual Analytics Spec**: Review `.kiro/specs/visual-analytics/` for detailed feature documentation
+
+### Diagnostic Tools
+- **Database Verification**: `php tests/database_verification.php`
+- **Property Tests**: Individual test suites for specific components
+- **Error Logs**: Check server error logs for detailed error information
+- **Message System**: Use doctor message logs to track system notifications
+
+### Common Issues
+- **Chart Not Loading**: Check browser console for JavaScript errors, verify database connection
+- **TinyMCE Problems**: Ensure CDN access, check for JavaScript conflicts
+- **Authentication Issues**: Verify session configuration, check audit logs
+- **Encryption Errors**: Validate encryption keys in `config.php`
+- **Performance Issues**: Run database optimization, check query performance
 
 ## 🔄 Version History
 
@@ -347,6 +494,11 @@ For support and questions:
 - **v1.1.0**: Added doctor portal and notification system
 - **v1.2.0**: Enhanced security with property-based testing
 - **v1.3.0**: Improved UI/UX and responsive design
+- **v1.4.0**: Visual Analytics feature with interactive charts
+- **v1.5.0**: Comprehensive testing framework with 9 test suites
+- **v1.6.0**: Advanced message system with change tracking
+- **v1.7.0**: Database backup system and audit logging
+- **v1.8.0**: TinyMCE integration and form validation enhancements
 
 ---
 

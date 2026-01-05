@@ -11,7 +11,6 @@ A comprehensive, secure web-based patient management system designed for private
 - [Database Setup](#-database-setup)
 - [User Roles](#-user-roles)
 - [File Structure](#-file-structure)
-- [Testing](#-testing)
 - [API Endpoints](#-api-endpoints)
 - [Security Considerations](#-security-considerations)
 - [Contributing](#-contributing)
@@ -72,13 +71,6 @@ A comprehensive, secure web-based patient management system designed for private
 - **Audit Trail**: Complete security logging for all admin actions
 - **System Maintenance**: Automated cleanup and optimization tools
 - **Digital Clock**: Real-time dashboard clock display
-
-### 🧪 Testing Framework
-- **Property-Based Testing**: Comprehensive test suite with 100+ iterations per property
-- **Multiple Test Categories**: Authentication, Patient Management, Security, UI, Encryption, Analytics
-- **Automated Test Runner**: Single command execution of all test suites
-- **Test Coverage**: 9 different property test classes covering all major features
-- **Continuous Validation**: Ensures system correctness across all components
 
 ## 🛡️ Security Features
 
@@ -244,76 +236,10 @@ CCS6334-Assignment/
 │       ├── 📄 schema.sql       # Database structure
 │       └── 📄 create_security_users.sql # Security setup
 │
-├── 🧪 Testing Framework/
-│   ├── 📄 run_all_property_tests.php # Comprehensive test runner
-│   ├── 📄 database_verification.php  # Database setup verification
-│   └── properties/
-│       ├── 📄 AuthenticationPropertiesTest.php
-│       ├── 📄 PatientManagementPropertiesTest.php
-│       ├── 📄 SecurityPropertiesTest.php
-│       ├── 📄 UIPropertiesTest.php
-│       ├── 📄 ICEncryptionPropertiesTest.php
-│       └── 📄 VisualAnalyticsPropertiesTest.php
-│
-├── 📊 Visual Analytics/
-│   └── .kiro/specs/visual-analytics/
-│       ├── 📄 requirements.md  # Feature requirements
-│       ├── 📄 design.md        # Technical design
-│       └── 📄 tasks.md         # Implementation tasks
-│
 └── 🛠️ System Utilities/
     ├── 📄 seed_data.php        # Test data generator with secure hashing
     └── 📄 backup_system.php    # Encrypted database backup system
 ```
-
-## 🧪 Testing Framework
-
-### Property-Based Testing
-The system includes comprehensive property-based tests with 100+ iterations per property to ensure statistical confidence:
-
-```bash
-# Run all property tests (comprehensive suite)
-php tests/run_all_property_tests.php
-
-# Generate JSON report
-php tests/run_all_property_tests.php --json
-
-# Run specific test suites
-php tests/properties/SecurityPropertiesTest.php
-php tests/properties/PatientManagementPropertiesTest.php
-php tests/properties/VisualAnalyticsPropertiesTest.php
-```
-
-### Test Categories
-- **Authentication Properties**: Login security, session management, and access control
-- **Patient Management Properties**: CRUD operations, data integrity, and form validation
-- **Security Properties**: Encryption effectiveness, input sanitization, and error handling
-- **UI Properties**: Interface consistency, responsive design, and accessibility
-- **IC Encryption Properties**: Malaysian IC number encryption/decryption round-trip testing
-- **Visual Analytics Properties**: Chart data consistency, date coverage, and error handling
-
-### Advanced Testing Features
-- **Statistical Validation**: Each property runs 100 iterations with random data generation
-- **Comprehensive Coverage**: 9 test classes covering all major system components
-- **Automated Test Runner**: Single command execution with detailed reporting
-- **Error Isolation**: Individual test failure reporting with specific error details
-- **Performance Metrics**: Execution time tracking and success rate calculation
-
-### Database Verification
-```bash
-# Verify database setup and security configuration
-php tests/database_verification.php
-
-# Check encryption functionality
-php tests/properties/ICEncryptionPropertiesTest.php
-```
-
-### Test Results Dashboard
-The test runner provides:
-- ✅ **Overall Statistics**: Total tests, pass/fail counts, success percentage
-- 📊 **Suite Breakdown**: Individual test suite performance metrics  
-- 🎯 **Detailed Reporting**: Specific failure information and debugging data
-- ⏱️ **Performance Tracking**: Execution time and efficiency metrics
 
 ## 🔌 API Endpoints
 
@@ -442,51 +368,6 @@ Advanced messaging system keeps doctors informed about patient updates:
 - Responsive design optimized for mobile devices
 - Chart.js animations with performance-optimized rendering
 - AJAX data loading to prevent full page reloads
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Add property-based tests for new features
-4. Ensure all tests pass
-5. Submit a pull request
-
-### Development Guidelines
-- Follow PSR-12 coding standards
-- Add comprehensive error handling with graceful degradation
-- Include security considerations and input validation
-- Write property-based tests with 100+ iterations
-- Document new features in README and create specs for complex features
-- Use the Kiro specs system for feature development
-- Maintain test coverage across all major components
-- Follow the established encryption patterns for sensitive data
-
-## 📄 License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-## 🆘 Support & Troubleshooting
-
-### Getting Help
-For support and questions:
-- **Documentation**: Check this comprehensive README for feature details
-- **Security Guide**: Review `SETUP_DATABASE_SECURITY.md` for security configuration
-- **Test Suite**: Run `php tests/run_all_property_tests.php` to verify system functionality
-- **Audit Logs**: Check `audit_log.php` for system activity and security events
-- **Visual Analytics Spec**: Review `.kiro/specs/visual-analytics/` for detailed feature documentation
-
-### Diagnostic Tools
-- **Database Verification**: `php tests/database_verification.php`
-- **Property Tests**: Individual test suites for specific components
-- **Error Logs**: Check server error logs for detailed error information
-- **Message System**: Use doctor message logs to track system notifications
-
-### Common Issues
-- **Chart Not Loading**: Check browser console for JavaScript errors, verify database connection
-- **TinyMCE Problems**: Ensure CDN access, check for JavaScript conflicts
-- **Authentication Issues**: Verify session configuration, check audit logs
-- **Encryption Errors**: Validate encryption keys in `config.php`
-- **Performance Issues**: Run database optimization, check query performance
 
 ## 🔄 Version History
 
